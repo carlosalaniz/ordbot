@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum InscriptionQueueItemState {
+  PENDING_PAYMENT
+  WAITING_INSCRIBED_CONFIRMATION
+  WAITING_PAYMENT_CONFIRMATION
+  PAYMENT_CONFIRMED
+  ERROR
+  INSCRIBED
+}
+
+enum FeeOptions {
+  FASTEST
+  HALF_HOUR
+  HOUR
+  ECONOMY
+  MINIMUM
+}
+
+model Wallet {
+  id                   String                 @id @default(uuid())
+  receiving_address    String                 @unique()
+  InscriptionQueueItem InscriptionQueueItem[]
+}
+
+model InscriptionQueueItem {
+  id               String                    @id @default(uuid())
+  wallet           Wallet                    @relation(fields: [walletId], references: [id])
+  inscription_cost Int
+  fee_sats         Int
+  state            InscriptionQueueItemState
+  created_at       DateTime                  @default(now())
+  updated_at       DateTime                  @default(now())
+
+  file_path           String
+  mime_type           String
+  fee_option          FeeOptions
+  destination_address String
+
+  total_sat Int
+  error     String?
+  walletId  String
+}
+
+// model User {
+//   id               String         @id @default(uuid())
+//   username         String         @unique
+//   password         String
+//   sats_ledger      SatsLedger?
+//   credit_ledger    CreditsLedger?
+//   userLedgerUserId String?
+// }
+
+// // Credits Ledger
+// model CreditsLedger {
+//   userId  String               @id
+//   owner   User                 @relation(fields: [userId], references: [id])
+//   entries CreditsLedgerEntry[]
+// }
+
+// model CreditsLedgerEntry {
+//   id               Int                   @id @default(autoincrement())
+//   user             CreditsLedger?        @relation(fields: [userLedgerUserId], references: [userId])
+//   debit            UserCreditsDebitTxn?
+//   credit           UserCreditsCreditTxn?
+//   running_balance  Int
+//   userLedgerUserId String?
+// }
+
+// model UserCreditsDebitTxn {
+//   id           Int                @id @default(autoincrement())
+//   credits      Int
+//   created_at   DateTime           @default(now())
+//   confirmed_at DateTime?
+//   ledger_entry CreditsLedgerEntry @relation(fields: [ledgerEntryId], references: [id])
+
+//   ledgerEntryId Int @unique
+// }
+
+// model UserCreditsCreditTxn {
+//   id             Int                @id @default(autoincrement())
+//   deposit_wallet String             @unique
+//   credits        Int
+//   created_at     DateTime           @default(now())
+//   confirmed_at   DateTime?
+//   ledger_entry   CreditsLedgerEntry @relation(fields: [ledgerEntryId], references: [id])
+
+//   ledgerEntryId Int @unique
+// }
+
+// // Bernardo 
+// // Debit 34232 sat confirmed:false
+// // 
+
+// // Stats Ledger
+// model SatsLedger {
+//   userId  String            @id
+//   owner   User              @relation(fields: [userId], references: [id])
+//   entries SatsLedgerEntry[]
+// }
+
+// model SatsLedgerEntry {
+//   id               Int               @id @default(autoincrement())
+//   user             SatsLedger?       @relation(fields: [userLedgerUserId], references: [userId])
+//   debit            UserSatDebitTxn?
+//   credit           UserSatCreditTxn?
+//   running_balance  Float
+//   userLedgerUserId String?
+// }
+
+// model UserSatDebitTxn {
+//   id              Int             @id @default(autoincrement())
+//   sats            Float
+//   receive_address String
+//   created_at      DateTime        @default(now())
+//   confirmed_at    DateTime?
+//   ledger_entry    SatsLedgerEntry @relation(fields: [ledgerEntryId], references: [id])
+
+//   ledgerEntryId Int @unique
+// }
+
+// model UserSatCreditTxn {
+//   id             Int             @id @default(autoincrement())
+//   deposit_wallet String          @unique
+//   sats           Float
+//   created_at     DateTime        @default(now())
+//   confirmed_at   DateTime?
+//   ledger_entry   SatsLedgerEntry @relation(fields: [ledgerEntryId], references: [id])
+
+//   ledgerEntryId Int @unique
+// }
+
+// model Inscription {
+//   id             String @id @default(uuid())
+//   inscription_id String @unique
+//   mime_type      String
+// }

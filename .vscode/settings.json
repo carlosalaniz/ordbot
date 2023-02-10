@@ -1,0 +1,33 @@
+{
+    "cSpell.words": [
+        "Automator",
+        "automators",
+        "expressjwt",
+        "hotspot",
+        "Hotspot",
+        "Kbps",
+        "menti",
+        "Pppoe",
+        "SSTP",
+        "typeform",
+        "Wisphub"
+    ],
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/.classpath": true,
+        "**/.factorypath": true,
+        "**/.settings": true,
+        "**/node_modules": true,
+        "**/spa/": true
+    },
+    "cSpell.language": "en,es-ES",
+    "cSpell.enableFiletypes": [
+        "dotenv",
+        "prisma"
+    ]
+}
