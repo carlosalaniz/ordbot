@@ -15,13 +15,12 @@ export abstract class IntervalWorkerAbstract {
                 await sleep(this.intervalMs);
             } catch (e) {
                 logger.error(e)
-                this.stop()
+                this.stop(e)
             }
         }
     }
     stop(opt?: { error: string }) {
-        if (opt?.error) {
-            throw opt.error;
-        }
+        if (opt)
+            throw opt;
     }
 }

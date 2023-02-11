@@ -8,19 +8,37 @@
             "name": "Current TS File",
             "type": "node",
             "request": "launch",
-            "args": ["${relativeFile}"],
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+            "args": [
+                "${relativeFile}"
+            ],
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register"
+            ],
             "sourceMaps": true,
-            // "preLaunchTask": "npm: spec-and-routes",
             "cwd": "${workspaceRoot}",
             "protocol": "inspector",
+        },
+        {
+            "type": "node-terminal",
+            "name": "Debug Current TS File (ts-node)",
+            "request": "launch",
+            "command": "ts-node -- ${relativeFile}",
+            "cwd": "${workspaceRoot}",
         },
         {
             "name": "Launch server",
             "type": "node",
             "request": "launch",
-            "args": ["src/server"],
-            "runtimeArgs": ["--nolazy", "-r", "ts-node/register"],
+            "args": [
+                "src/server"
+            ],
+            "runtimeArgs": [
+                "--nolazy",
+                "-r",
+                "ts-node/register"
+            ],
             "sourceMaps": true,
             "preLaunchTask": "npm: spec-and-routes",
             "cwd": "${workspaceRoot}",

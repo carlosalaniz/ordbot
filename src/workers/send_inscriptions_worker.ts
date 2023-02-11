@@ -4,9 +4,9 @@ import { OrdWallet } from "../common/ord"
 import logger from "../common/logger";
 import config from "../config";
 
-export class InscribeWorker extends IntervalWorkerAbstract {
-    intervalMs = config.INSCRIBE_WORKER_INTERVAL_MS;
-    inscriptionsMax = config.INSCRIBE_WORKER_INSCRIPTIONS_MAX;
+export class SendInscriptionWorker extends IntervalWorkerAbstract {
+    intervalMs = config.SEND_INSCRIPTION_WORKER_INTERVAL_MS;
+    inscriptionsMax = config.SEND_INSCRIPTION_WORKER_INSCRIPTIONS_MAX;
 
     constructor(private prismaClient = new PrismaClient()) {
         super()
@@ -25,17 +25,16 @@ export class InscribeWorker extends IntervalWorkerAbstract {
         const recordsToInscribe = await this.prismaClient.inscriptionQueueItem.findMany({
             select: {
                 id: true,
-                file_path: true,
-                mime_type: true,
                 fee_sats: true,
                 wallet: true,
+                destination_address: true
             },
             take: this.inscriptionsMax,
             orderBy: {
                 updated_at: "asc" // FIFO
             },
             where: {
-                state: InscriptionQueueItemState.PAYMENT_CONFIRMED
+                state: InscriptionQueueItemState.INSCRIBED
             }
         });
 
@@ -43,11 +42,11 @@ export class InscribeWorker extends IntervalWorkerAbstract {
         for (const record of recordsToInscribe) {
             try {
                 const ord = new OrdWallet(record.wallet.id)
-                await ord.inscribe(
-                    record.file_path,
+                await ord.send(
+                    record.destination_address,
                     record.fee_sats
                 )
-                await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.WAITING_INSCRIBED_CONFIRMATION)
+                await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.SENT)
             } catch (e) {
                 await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.ERROR, e)
             }

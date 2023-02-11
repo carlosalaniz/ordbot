@@ -1,6 +1,6 @@
 export default {
-    error: (e) => console.error(e),
-    log: (e) => console.log(e),
-    debug: (e) => console.debug(e),
-    warn: (e) => console.warn(e),
+    error: (...e) => console.error(...e),
+    log: (...l) => console.log(...l),
+    debug: (...d) => console.debug(...d),
+    warn: (...w) => console.warn(...w),
 }

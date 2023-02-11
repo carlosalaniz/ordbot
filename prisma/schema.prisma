@@ -17,6 +17,7 @@ enum InscriptionQueueItemState {
   PAYMENT_CONFIRMED
   ERROR
   INSCRIBED
+  SENT
 }
 
 enum FeeOptions {
@@ -28,9 +29,10 @@ enum FeeOptions {
 }
 
 model Wallet {
-  id                   String                 @id @default(uuid())
-  receiving_address    String                 @unique()
-  InscriptionQueueItem InscriptionQueueItem[]
+  id                   String                @id
+  receiving_address    String                @unique()
+  mnemonic             String
+  InscriptionQueueItem InscriptionQueueItem?
 }
 
 model InscriptionQueueItem {
@@ -49,7 +51,7 @@ model InscriptionQueueItem {
 
   total_sat Int
   error     String?
-  walletId  String
+  walletId  String  @unique
 }
 
 // model User {
