@@ -1,15 +1,20 @@
 import { FeeOptions, InscriptionQueueItemState, PrismaClient } from "@prisma/client";
 import { randomUUID } from "crypto";
-import { writeFileSync } from "fs"
+import { writeFileSync, readFileSync } from "fs"
 import { resolve } from "path"
 import {
     Controller,
     FormField,
+    Get,
     Post,
+    Query,
     Route,
     Tags,
-    UploadedFile
+    UploadedFile,
+    Request,
+    Body
 } from "tsoa";
+import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
 import { OrdWallet } from "../common/ord";
 import { estimateCost } from "../common/utils";
 import config from "../config";
@@ -68,7 +73,7 @@ export class InscriptionController extends Controller {
                     receiving_address: receiveAddress.address,
                 }
             });
-            
+
             await this.prismaClient.inscriptionQueueItem.create({
                 data: {
                     walletId: new_wallet.id,
@@ -78,14 +83,14 @@ export class InscriptionController extends Controller {
                     state: InscriptionQueueItemState.PENDING_PAYMENT,
                     file_path: filePath,
                     mime_type: file.mimetype,
-
+                    file_name: fileName,
                     fee_option: feeOption,
                     destination_address: destination_address,
                 }
             })
 
             return {
-                receiveAddress: receiveAddress.address,
+                depositAddress: receiveAddress.address,
                 total: cost.total,
                 timeoutSeconds: config.INSCRIPTION_QUEUE_ITEM_EXPIRY_SECONDS
             };
@@ -93,5 +98,91 @@ export class InscriptionController extends Controller {
             this.setStatus(400);
             return error_messages;
         }
+    }
+
+    @Post("/status")
+    public async getInscriptionStatus(
+        @Query() depositAddress: string
+    ): Promise<any> {
+        const inscriptionQueueItem = await this.prismaClient.wallet
+            .findFirst({
+                select: {
+                    InscriptionQueueItem: {
+                        select: {
+                            state: true,
+                            updated_at: true,
+                            file_name: true,
+                            total_sat: true
+                        }
+                    }
+                },
+                where: {
+                    receiving_address: depositAddress
+                }
+            }).then(w => w.InscriptionQueueItem);
+        if (inscriptionQueueItem) {
+            return {
+                state: inscriptionQueueItem.state,
+                last_updated: inscriptionQueueItem.updated_at,
+                deposit_address: depositAddress,
+                file: inscriptionQueueItem.file_name,
+                total_fee: inscriptionQueueItem.total_sat
+            }
+        }
+        this.setStatus(404)
+        return "not found"
+
+    }
+
+    @Get("/file")
+    public async getInscriptionFile(
+        @Query() depositAddress: string
+    ): Promise<any> {
+        const inscriptionQueueItem = await this.prismaClient.wallet
+            .findFirst({
+                select: {
+                    InscriptionQueueItem: {
+                        select: {
+                            file_path: true,
+                            mime_type: true
+                        }
+                    }
+                },
+                where: {
+                    receiving_address: depositAddress
+                }
+            }).then(w => w.InscriptionQueueItem);
+        if (inscriptionQueueItem) {
+            this.setHeader('Content-type', inscriptionQueueItem.mime_type);
+            return {
+                readable: true,
+                _read: () => { },
+                pipe: (res: ExpressResponse) => {
+                    res.end(readFileSync(inscriptionQueueItem.file_path), 'binary')
+                }
+            };
+        }
+        this.setStatus(404);
+        return "not found";
+    }
+
+    @Post("/estimate")
+    public async getEstimate(
+        @Body() request: {
+            bytes_size: number,
+            fee_option: FeeOptions
+        }
+    ) {
+        let error_messages = [];
+        if (request.bytes_size > 40000) {
+            error_messages.push(`file size cannot be greater than 40,000 bytes. Actual size ${request.bytes_size}`);
+        }
+
+        const feeOption = FeeOptions[request.fee_option];
+        if (!feeOption) {
+            error_messages.push('invalid fee option');
+        }
+
+        return await estimateCost(request.bytes_size, feeOption).then(eC => eC.total);
     }
 }

@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./dist/src/server.js",
-    "spec-and-routes": "tsoa spec-and-routes"
+    "tsoa": "tsoa spec-and-routes",
+    "prisma": "npx migrate dev"
   },
   "author": "",
   "license": "ISC",

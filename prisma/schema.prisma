@@ -45,6 +45,7 @@ model InscriptionQueueItem {
   updated_at       DateTime                  @default(now())
 
   file_path           String
+  file_name           String
   mime_type           String
   fee_option          FeeOptions
   destination_address String

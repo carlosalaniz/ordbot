@@ -11,6 +11,11 @@ const upload = multer();
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "FeeOptions": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["FASTEST"]},{"dataType":"enum","enums":["HALF_HOUR"]},{"dataType":"enum","enums":["HOUR"]},{"dataType":"enum","enums":["ECONOMY"]},{"dataType":"enum","enums":["MINIMUM"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const validationService = new ValidationService(models);
 
@@ -43,6 +48,81 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.uploadFileInscription.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/inscriptions/status',
+            ...(fetchMiddlewares<RequestHandler>(InscriptionController)),
+            ...(fetchMiddlewares<RequestHandler>(InscriptionController.prototype.getInscriptionStatus)),
+
+            function InscriptionController_getInscriptionStatus(request: any, response: any, next: any) {
+            const args = {
+                    depositAddress: {"in":"query","name":"depositAddress","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new InscriptionController();
+
+
+              const promise = controller.getInscriptionStatus.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/inscriptions/file',
+            ...(fetchMiddlewares<RequestHandler>(InscriptionController)),
+            ...(fetchMiddlewares<RequestHandler>(InscriptionController.prototype.getInscriptionFile)),
+
+            function InscriptionController_getInscriptionFile(request: any, response: any, next: any) {
+            const args = {
+                    depositAddress: {"in":"query","name":"depositAddress","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new InscriptionController();
+
+
+              const promise = controller.getInscriptionFile.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/inscriptions/estimate',
+            ...(fetchMiddlewares<RequestHandler>(InscriptionController)),
+            ...(fetchMiddlewares<RequestHandler>(InscriptionController.prototype.getEstimate)),
+
+            function InscriptionController_getEstimate(request: any, response: any, next: any) {
+            const args = {
+                    request: {"in":"body","name":"request","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"fee_option":{"ref":"FeeOptions","required":true},"bytes_size":{"dataType":"double","required":true}}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new InscriptionController();
+
+
+              const promise = controller.getEstimate.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

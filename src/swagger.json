@@ -5,7 +5,19 @@
 		"parameters": {},
 		"requestBodies": {},
 		"responses": {},
-		"schemas": {},
+		"schemas": {
+			"FeeOptions": {
+				"type": "string",
+				"enum": [
+					"FASTEST",
+					"HALF_HOUR",
+					"HOUR",
+					"ECONOMY",
+					"MINIMUM"
+				],
+				"description": "Enums"
+			}
+		},
 		"securitySchemes": {
 			"jwt": {
 				"type": "apiKey",
@@ -75,6 +87,110 @@
 									"fee_option",
 									"destination_address"
 								]
+							}
+						}
+					}
+				}
+			}
+		},
+		"/inscriptions/status": {
+			"post": {
+				"operationId": "GetInscriptionStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Inscriptions"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "depositAddress",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/inscriptions/file": {
+			"get": {
+				"operationId": "GetInscriptionFile",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Inscriptions"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "depositAddress",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/inscriptions/estimate": {
+			"post": {
+				"operationId": "GetEstimate",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "number",
+									"format": "double"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Inscriptions"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"fee_option": {
+										"$ref": "#/components/schemas/FeeOptions"
+									},
+									"bytes_size": {
+										"type": "number",
+										"format": "double"
+									}
+								},
+								"required": [
+									"fee_option",
+									"bytes_size"
+								],
+								"type": "object"
 							}
 						}
 					}
