@@ -8,7 +8,7 @@ export class SendInscriptionWorker extends IntervalWorkerAbstract {
     intervalMs = config.SEND_INSCRIPTION_WORKER_INTERVAL_MS;
     inscriptionsMax = config.SEND_INSCRIPTION_WORKER_INSCRIPTIONS_MAX;
 
-    constructor(private prismaClient:PrismaClient) {
+    constructor(private prismaClient: PrismaClient) {
         super()
     }
 
@@ -48,7 +48,7 @@ export class SendInscriptionWorker extends IntervalWorkerAbstract {
                 )
                 await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.SENT)
             } catch (e) {
-                await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.ERROR, e)
+                await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.ERROR, e.toString())
             }
         }
     }

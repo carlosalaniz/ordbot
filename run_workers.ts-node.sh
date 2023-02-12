@@ -1,0 +1,1 @@
+ts-node -T ./src/workers/worker_broker.ts

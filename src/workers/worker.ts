@@ -9,9 +9,9 @@ export abstract class IntervalWorkerAbstract {
         while (1) {
             try {
                 const uuid = randomUUID();
-                logger.debug(`Staring job ${uuid}`)
+                logger.debug(`Staring job`, uuid)
                 await this.doWork(uuid);
-                logger.debug(`Done job ${uuid}, sleeping ${this.intervalMs}`)
+                logger.debug("Done job", uuid)
                 await sleep(this.intervalMs);
             } catch (e) {
                 logger.error(e)

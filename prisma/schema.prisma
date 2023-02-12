@@ -36,15 +36,16 @@ model Wallet {
 }
 
 model InscriptionQueueItem {
-  id               String                    @id @default(uuid())
-  wallet           Wallet                    @relation(fields: [walletId], references: [id])
-  inscription_cost Int
-  fee_sats         Int
-  state            InscriptionQueueItemState
-  created_at       DateTime                  @default(now())
-  updated_at       DateTime                  @default(now())
-  expires_in       DateTime           
-
+  id                  String                    @id @default(uuid())
+  wallet              Wallet                    @relation(fields: [walletId], references: [id])
+  inscription_cost    Int
+  fee_sats            Int
+  state               InscriptionQueueItemState
+  created_at          DateTime                  @default(now())
+  updated_at          DateTime                  @default(now())
+  expires_in          DateTime
+  ordinal_id          String?
+  ordinal_link        String?
   file_path           String
   file_name           String
   mime_type           String
@@ -52,7 +53,7 @@ model InscriptionQueueItem {
   destination_address String
   total_sat           Int
   error               String?
-  walletId            String     @unique
+  walletId            String                    @unique
 }
 
 // model User {

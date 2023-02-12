@@ -4,6 +4,11 @@ import IconLogout from "./components/icons/IconLogout.vue";
 </script>
 
 <template>
+  <dialog open>
+    <article>
+     We are fixing bugs! Come back later!
+    </article>
+  </dialog>
   <main class="container">
     <nav>
       <ul>
@@ -30,7 +35,7 @@ import IconLogout from "./components/icons/IconLogout.vue";
     <hr />
 
     <RouterView />
-    <footer  dir="rtl" >
+    <footer dir="rtl">
       <hr>
       <p><small>
           🐸<span class="secondary">Version 0.1</span>🐸</small> |

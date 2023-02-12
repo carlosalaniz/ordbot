@@ -34,15 +34,15 @@ import DepositView from "../components/DepositView.vue";
       <div>
         <hgroup>
           <h3>Status:</h3>
-          <h4>PENDING_PAYMENT</h4>
+          <h4>{{ status_result.state }}</h4>
         </hgroup>
         <hgroup>
           <h3>Fee:</h3>
-          <h4>277418 SATS</h4>
+          <h4>{{ status_result.total_fee }} SATS</h4>
         </hgroup>
         <hgroup>
           <h3>Last updated:</h3>
-          <h4>2023-02-11T23:56:19.081Z</h4>
+          <h4>{{ status_result.last_updated }}</h4>
         </hgroup>
       </div>
     </div>

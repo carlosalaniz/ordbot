@@ -80,11 +80,12 @@ export class OrdWallet {
     async inscribe(file_path: String, fee_rate: number) {
         await OrdWallet.index();
         // I don't know how to do this yet.
-        await OrdWallet.queueExecuter.execute("ord")
+        return await OrdWallet.queueExecuter.execute(`ord --wallet ${this.walletName} wallet inscribe ${file_path} --fee-rate ${fee_rate}`)
     };
 
     async send(destination_wallet: string, fee_rate: number) {
         await OrdWallet.index();
+        
         // This should only be one.
         const inscriptions = await this.inscriptions();
         if (inscriptions.length > 1) {

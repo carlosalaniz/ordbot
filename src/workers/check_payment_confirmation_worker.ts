@@ -44,32 +44,38 @@ export class CheckPaymentConfirmationWorker extends IntervalWorkerAbstract {
                 state: InscriptionQueueItemState.WAITING_PAYMENT_CONFIRMATION
             }
         });
-        logger.debug(`CheckPaymentConfirmationWorker: ${uuid} JobProcessing ${recordsToCheck.length} inscriptionQueueItems...`)
+        logger.debug(`checkPaymentPendingWorker: ${uuid} JobProcessing ${recordsToCheck.length} inscriptionQueueItems...`)
         for (const record of recordsToCheck) {
-            const walletCheck = await this.addressesApi.getAddressTxs({
+
+            const walletCheck = await this.addressesApi.getAddress({
                 address: record.wallet.receiving_address
             });
 
+            // Not yet confirmed
+            if (walletCheck.chain_stats.tx_count === 0) continue;
+
+
+
+            //debits - credits
+            const balance = walletCheck.chain_stats.funded_txo_sum - walletCheck.chain_stats.spent_txo_sum
+
             // we assume a newly created wallet.
             // thus this wallet should only have 1 txn at this point in time (Waiting for funds)
-            if (walletCheck.length > 1) {
+            if (walletCheck.chain_stats.funded_txo_count !== 1) {
                 const error = `wallet ${record.wallet.id} is in an illegal state. more than one funding txn`;
                 await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.ERROR, error)
                 logger.error(error);
                 continue;
             }
-            const txn = walletCheck.at(0);
-            const confirmed = txn.status.confirmed;
-            const total = txn.vin.reduce((total, currentVin) => total + currentVin.prevout.value, 0);
-            if (confirmed) {
-                if (total !== record.total_sat) {
-                    const error = `txn ${txn.txid} has an incorrect total amount. txn total amount ${total} but ${record.total_sat} expected`;
-                    await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.ERROR, error)
-                    logger.error(error);
-                    continue;
-                }
-                await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.PAYMENT_CONFIRMED)
+
+            if (balance !== record.total_sat) {
+                const error = `wallet ${record.wallet.id} has an incorrect total amount. total amount ${balance} but ${record.total_sat} expected`;
+                await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.ERROR, error)
+                logger.error(error);
+                continue;
             }
+            
+            await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.PAYMENT_CONFIRMED)
         }
     }
 }
