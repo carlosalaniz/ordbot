@@ -11,11 +11,6 @@ const upload = multer();
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
-    "FeeOptions": {
-        "dataType": "refAlias",
-        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["FASTEST"]},{"dataType":"enum","enums":["HALF_HOUR"]},{"dataType":"enum","enums":["HOUR"]},{"dataType":"enum","enums":["ECONOMY"]},{"dataType":"enum","enums":["MINIMUM"]}],"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const validationService = new ValidationService(models);
 
@@ -110,7 +105,7 @@ export function RegisterRoutes(app: Router) {
 
             function InscriptionController_getEstimate(request: any, response: any, next: any) {
             const args = {
-                    request: {"in":"body","name":"request","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"fee_option":{"ref":"FeeOptions","required":true},"bytes_size":{"dataType":"double","required":true}}},
+                    request: {"in":"body","name":"request","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"fee_option":{"dataType":"string","required":true},"bytes_size":{"dataType":"double","required":true}}},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

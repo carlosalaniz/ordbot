@@ -43,16 +43,16 @@ model InscriptionQueueItem {
   state            InscriptionQueueItemState
   created_at       DateTime                  @default(now())
   updated_at       DateTime                  @default(now())
+  expires_in       DateTime           
 
   file_path           String
   file_name           String
   mime_type           String
   fee_option          FeeOptions
   destination_address String
-
-  total_sat Int
-  error     String?
-  walletId  String  @unique
+  total_sat           Int
+  error               String?
+  walletId            String     @unique
 }
 
 // model User {

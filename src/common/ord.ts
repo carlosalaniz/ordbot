@@ -1,9 +1,9 @@
-import { execSync } from 'child_process'
 import { existsSync } from 'fs'
 import { resolve } from 'path'
 import { exit } from 'process';
 import config from '../config'
 import logger from './logger';
+import { CommandQueue as CommandQueueExecuter } from './utils';
 
 type inscription = {
     explorer: string,
@@ -43,14 +43,15 @@ function verifyWalletName(walletName: string, exists: boolean) {
 }
 
 export class OrdWallet {
-
-    static createWallet(walletName): mnemonic {
+    private static queueExecuter = new CommandQueueExecuter(1);
+    static indexBlock = false;
+    static async createWallet(walletName): Promise<mnemonic> {
         verifyWalletName(walletName, false)
         const walletFolderPath = resolve(walletStorage, walletName);
         if (existsSync(walletFolderPath)) {
             throw `createWallet: Wrong wallet path=${walletFolderPath} wallet name=${walletName} exists `
         }
-        const result = execSync(`ord --wallet ${walletName} wallet create`).toString('utf-8')
+        const result = await OrdWallet.queueExecuter.execute(`ord --wallet ${walletName} wallet create`)
         try {
             return JSON.parse(result) as mnemonic;
         } catch (e) {
@@ -59,8 +60,11 @@ export class OrdWallet {
         }
     }
 
-    static index() {
-        const result = execSync(`ord index`).toString('utf-8');
+    static async index(walletName = "ord") {
+        if (OrdWallet.indexBlock) return;
+        OrdWallet.indexBlock = true;
+        const result = await OrdWallet.queueExecuter.execute(`ord --wallet ${walletName} index`)
+        OrdWallet.indexBlock = false;
         return result;
     }
 
@@ -73,30 +77,30 @@ export class OrdWallet {
     }
 
     // do
-    inscribe(file_path: String, fee_rate: number) {
-        OrdWallet.index();
+    async inscribe(file_path: String, fee_rate: number) {
+        await OrdWallet.index();
         // I don't know how to do this yet.
-        execSync("ord")
+        await OrdWallet.queueExecuter.execute("ord")
     };
 
-    send(destination_wallet: string, fee_rate: number) {
-        OrdWallet.index();
+    async send(destination_wallet: string, fee_rate: number) {
+        await OrdWallet.index();
         // This should only be one.
-        const inscriptions = this.inscriptions();
+        const inscriptions = await this.inscriptions();
         if (inscriptions.length > 1) {
             throw `inscription list is greater than one, this is unexpected. ${this.walletName}`
         }
         const inscription = inscriptions.at(0) as inscription;
         const id = inscription.inscription;
         const command = `ord --wallet ${this.walletName} wallet send --fee-rate ${fee_rate} ${destination_wallet} ${id}`;
-        const result = execSync(command).toString('utf-8')
+        const result = await OrdWallet.queueExecuter.execute(command)
         console.log(`Sent inscription from ${this.walletName} to ${destination_wallet} with command ${command}, result ${result}`)
     }
 
     //get
-    inscriptions(): inscription[] | string {
-        OrdWallet.index();
-        const result = execSync(`ord --wallet ${this.walletName} wallet inscriptions`).toString('utf-8')
+    private async inscriptions() {
+        await OrdWallet.index();
+        const result = await OrdWallet.queueExecuter.execute(`ord --wallet ${this.walletName} wallet inscriptions`)
         try {
             return JSON.parse(result) as inscription[]
         } catch (e) {
@@ -105,9 +109,9 @@ export class OrdWallet {
         }
     }
 
-    balance(): balance | string {
-        OrdWallet.index();
-        const result = execSync(`ord --wallet ${this.walletName} wallet balance`).toString('utf-8')
+    async balance() {
+        await OrdWallet.index();
+        const result = await OrdWallet.queueExecuter.execute(`ord --wallet ${this.walletName} wallet balance`)
         try {
             return JSON.parse(result) as balance;
         } catch (e) {
@@ -116,9 +120,9 @@ export class OrdWallet {
         }
     }
 
-    transactions(): ordTransactions[] | string {
-        OrdWallet.index();
-        const result = execSync(`ord --wallet ${this.walletName} wallet transactions`).toString('utf-8')
+    async transactions() {
+        await OrdWallet.index();
+        const result = await OrdWallet.queueExecuter.execute(`ord --wallet ${this.walletName} wallet transactions`)
         try {
             return JSON.parse(result) as ordTransactions[];
         } catch (e) {
@@ -127,9 +131,9 @@ export class OrdWallet {
         }
     }
 
-    receiveAddress(): receive {
-        OrdWallet.index();
-        const result = execSync(`ord --wallet ${this.walletName} wallet receive`).toString('utf-8')
+    async receiveAddress() {
+        // await OrdWallet.index();
+        const result = await OrdWallet.queueExecuter.execute(`ord --wallet ${this.walletName} wallet receive`)
         try {
             return JSON.parse(result) as receive;
         } catch (e) {

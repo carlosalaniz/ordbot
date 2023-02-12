@@ -1,3 +1,5 @@
+import { PrismaClient } from "@prisma/client"
+
 require('dotenv').config()
 export default {
     INSCRIPTION_QUEUE_ITEM_EXPIRY_SECONDS: +process.env.INSCRIPTION_QUEUE_ITEM_EXPIRY_SECONDS,
@@ -26,7 +28,8 @@ export default {
 
     // cost variables
     INSCRIPTION_FEE_MULTIPLIER: process.env.INSCRIPTION_FEE_MULTIPLIER,
-    SERVICE_FEE_SATS: +process.env.SERVICE_FEE_SATS
+    SERVICE_FEE_SATS: +process.env.SERVICE_FEE_SATS,
+    prismaClient: new PrismaClient()
 }
 
 

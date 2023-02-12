@@ -8,7 +8,7 @@ export class InscribeWorker extends IntervalWorkerAbstract {
     intervalMs = config.INSCRIBE_WORKER_INTERVAL_MS;
     inscriptionsMax = config.INSCRIBE_WORKER_INSCRIPTIONS_MAX;
 
-    constructor(private prismaClient = new PrismaClient()) {
+    constructor(private prismaClient: PrismaClient) {
         super()
     }
 

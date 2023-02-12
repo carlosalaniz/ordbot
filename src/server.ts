@@ -18,7 +18,7 @@ import { RegisterRoutes } from "./routes";
 
     RegisterRoutes(app);
 
-    app.listen(port, async () => {
+    app.listen(port, "0.0.0.0", async () => {
         console.log(`⚡️[server]: Server is running at http://localhost:${port}/docs/`);
     });
 })()

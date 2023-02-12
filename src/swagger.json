@@ -5,19 +5,7 @@
 		"parameters": {},
 		"requestBodies": {},
 		"responses": {},
-		"schemas": {
-			"FeeOptions": {
-				"type": "string",
-				"enum": [
-					"FASTEST",
-					"HALF_HOUR",
-					"HOUR",
-					"ECONOMY",
-					"MINIMUM"
-				],
-				"description": "Enums"
-			}
-		},
+		"schemas": {},
 		"securitySchemes": {
 			"jwt": {
 				"type": "apiKey",
@@ -160,8 +148,16 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "number",
-									"format": "double"
+									"anyOf": [
+										{
+											"type": "number",
+											"format": "double"
+										},
+										{
+											"items": {},
+											"type": "array"
+										}
+									]
 								}
 							}
 						}
@@ -179,7 +175,7 @@
 							"schema": {
 								"properties": {
 									"fee_option": {
-										"$ref": "#/components/schemas/FeeOptions"
+										"type": "string"
 									},
 									"bytes_size": {
 										"type": "number",

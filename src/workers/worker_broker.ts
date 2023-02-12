@@ -1,14 +1,15 @@
 import logger from "../common/logger"
+import config from "../config"
 import { CheckPaymentConfirmationWorker } from "./check_payment_confirmation_worker"
 import { InscribeStateConfirmationWorker } from "./inscribe_state_confirmation_worker"
 import { InscribeWorker } from "./inscribe_worker"
 import { SendInscriptionWorker } from "./send_inscriptions_worker"
 
 export class WorkerBroker {
-    checkPaymentConfirmationWorker = new CheckPaymentConfirmationWorker()
-    inscribeWorker = new InscribeWorker()
-    inscribeStateConfirmationWorker = new InscribeStateConfirmationWorker()
-    sendInscriptionWorker = new SendInscriptionWorker()
+    checkPaymentConfirmationWorker = new CheckPaymentConfirmationWorker(config.prismaClient)
+    inscribeWorker = new InscribeWorker(config.prismaClient)
+    inscribeStateConfirmationWorker = new InscribeStateConfirmationWorker(config.prismaClient)
+    sendInscriptionWorker = new SendInscriptionWorker(config.prismaClient)
     async start() {
         const workers = [
             this.checkPaymentConfirmationWorker.start(),

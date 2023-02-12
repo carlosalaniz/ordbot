@@ -1,4 +1,4 @@
-import { FeeOptions, InscriptionQueueItemState, PrismaClient } from "@prisma/client";
+import { FeeOptions, InscriptionQueueItemState } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { writeFileSync, readFileSync } from "fs"
 import { resolve } from "path"
@@ -27,17 +27,17 @@ import { validate } from 'bitcoin-address-validation';
 @Tags("Inscriptions")
 @Route("inscriptions")
 export class InscriptionController extends Controller {
-    private prismaClient = new PrismaClient()
+    private prismaClient = config.prismaClient;
     @Post("/queue")
     public async uploadFileInscription(
         @UploadedFile() file: Express.Multer.File,
-        @FormField() fee_option: FeeOptions,
+        @FormField() fee_option: string,
         @FormField() destination_address: string
     ): Promise<any | string[]> {
         // check file
         let error_messages = [];
-        if (file.size > 40000) {
-            error_messages.push(`file size cannot be greater than 40,000 bytes. Actual size ${file.buffer.length}`);
+        if (file.size > 80000) {
+            error_messages.push(`file size cannot be greater than 80,000 bytes. Actual size ${file.buffer.length}`);
         }
 
         const feeOption = FeeOptions[fee_option];
@@ -49,7 +49,7 @@ export class InscriptionController extends Controller {
             error_messages.push('invalid bitcoin address');
         }
 
-        if (!/bc1p/.test(destination_address)) {
+        if (!/bc1/.test(destination_address)) {
             error_messages.push('bitcoin address must be a taproot');
         }
 
@@ -63,9 +63,9 @@ export class InscriptionController extends Controller {
             // queue inscriptions 
             const walletName = randomUUID();
             const cost = await estimateCost(file.size, feeOption);
-            const result = OrdWallet.createWallet(walletName);
+            const result = await OrdWallet.createWallet(walletName);
             const wallet = new OrdWallet(walletName);
-            const receiveAddress = wallet.receiveAddress()
+            const receiveAddress = await wallet.receiveAddress()
             const new_wallet = await this.prismaClient.wallet.create({
                 data: {
                     id: walletName,
@@ -74,6 +74,8 @@ export class InscriptionController extends Controller {
                 }
             });
 
+            const expiresIn = new Date();
+            expiresIn.setTime(expiresIn.getTime() + (config.INSCRIPTION_QUEUE_ITEM_EXPIRY_SECONDS * 1000))
             await this.prismaClient.inscriptionQueueItem.create({
                 data: {
                     walletId: new_wallet.id,
@@ -86,13 +88,14 @@ export class InscriptionController extends Controller {
                     file_name: fileName,
                     fee_option: feeOption,
                     destination_address: destination_address,
+                    expires_in: expiresIn
                 }
             })
 
             return {
                 depositAddress: receiveAddress.address,
                 total: cost.total,
-                timeoutSeconds: config.INSCRIPTION_QUEUE_ITEM_EXPIRY_SECONDS
+                expiresIn
             };
         } else {
             this.setStatus(400);
@@ -119,7 +122,7 @@ export class InscriptionController extends Controller {
                 where: {
                     receiving_address: depositAddress
                 }
-            }).then(w => w.InscriptionQueueItem);
+            }).then(w => w?.InscriptionQueueItem);
         if (inscriptionQueueItem) {
             return {
                 state: inscriptionQueueItem.state,
@@ -170,7 +173,7 @@ export class InscriptionController extends Controller {
     public async getEstimate(
         @Body() request: {
             bytes_size: number,
-            fee_option: FeeOptions
+            fee_option: string
         }
     ) {
         let error_messages = [];
@@ -182,7 +185,8 @@ export class InscriptionController extends Controller {
         if (!feeOption) {
             error_messages.push('invalid fee option');
         }
-
-        return await estimateCost(request.bytes_size, feeOption).then(eC => eC.total);
+        if (error_messages.length === 0)
+            return await estimateCost(request.bytes_size, feeOption).then(eC => eC.total);
+        return error_messages
     }
 }

@@ -1,0 +1,38 @@
+nav a.active {
+  --background-color: var(--primary-focus);
+}
+
+.logo-themed {
+  background-origin: content-box;
+  /* padding: 0.25rem 0.25rem 0.25rem 0.2rem; */
+  background-position: center center;
+  background-size: contain;
+  width: 7rem;
+  height: 3rem;
+  background-image: url(public/logo.png);
+  /* border-radius: 50%; */
+}
+
+.logo-full-themed {
+  width: 6rem;
+  height: 2rem;
+  background-image: url(public/logo.png);
+  background-origin: content-box;
+  background-position: center center;
+  background-size: contain;
+}
+
+.float-right {
+  position: absolute;
+  right: 0;
+}
+
+html[data-theme="dark"] nav .logo-themed {
+  -webkit-filter: invert(100%);
+  filter: invert(100%);
+}
+
+html[data-theme="dark"] .logo-full-themed {
+  -webkit-filter: invert(100%);
+  filter: invert(100%);
+}

@@ -7,7 +7,7 @@ import logger from "../common/logger";
 
 export class CheckPaymentConfirmationWorker extends IntervalWorkerAbstract {
     private addressesApi: AddressInstance;
-    constructor(private prismaClient = new PrismaClient()) {
+    constructor(private prismaClient: PrismaClient) {
         super()
         const { bitcoin: { addresses } } = mempoolJS({
             hostname: 'mempool.space'
