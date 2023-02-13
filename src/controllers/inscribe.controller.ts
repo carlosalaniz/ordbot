@@ -28,12 +28,22 @@ import { validate } from 'bitcoin-address-validation';
 @Route("inscriptions")
 export class InscriptionController extends Controller {
     private prismaClient = config.prismaClient;
+    @Get("/status")
+    public status(
+        @Request() req: ExpressRequest
+    ) {
+        console.log("POST /queue", req.headers["x-real-ip"], new Date())
+        return "OK";
+    }
     @Post("/queue")
     public async uploadFileInscription(
+        @Request() req: ExpressRequest,
         @UploadedFile() file: Express.Multer.File,
         @FormField() fee_option: string,
         @FormField() destination_address: string
     ): Promise<any | string[]> {
+        console.log("POST /queue", req.headers["x-real-ip"], new Date());
+        const client_id = req.headers["x-client-id"];
         // check file
         let error_messages = [];
         if (file.size > 80000) {
@@ -44,13 +54,15 @@ export class InscriptionController extends Controller {
         if (!feeOption) {
             error_messages.push('invalid fee option');
         }
+        const testWallet = destination_address == 'testwallet'
+        if (!testWallet) {
+            if (!validate(destination_address)) {
+                error_messages.push('invalid bitcoin address');
+            }
 
-        if (!validate(destination_address)) {
-            error_messages.push('invalid bitcoin address');
-        }
-
-        if (!/bc1/.test(destination_address)) {
-            error_messages.push('bitcoin address must be a taproot');
+            if (!/bc1/.test(destination_address)) {
+                error_messages.push('bitcoin address must be a taproot');
+            }
         }
 
         if (error_messages.length === 0) {
@@ -62,7 +74,7 @@ export class InscriptionController extends Controller {
 
             // queue inscriptions 
             const walletName = randomUUID();
-            const cost = await estimateCost(file.size, feeOption);
+            const cost = await estimateCost(file.size, { feeOption });
             const result = await OrdWallet.createWallet(walletName);
             const wallet = new OrdWallet(walletName);
             const receiveAddress = await wallet.receiveAddress()
@@ -76,13 +88,15 @@ export class InscriptionController extends Controller {
 
             const expiresIn = new Date();
             expiresIn.setTime(expiresIn.getTime() + (config.INSCRIPTION_QUEUE_ITEM_EXPIRY_SECONDS * 1000))
-            await this.prismaClient.inscriptionQueueItem.create({
+            const state = (testWallet) ? InscriptionQueueItemState.TEST_PAYMENT : InscriptionQueueItemState.PENDING_PAYMENT;
+            const queueItem = await this.prismaClient.inscriptionQueueItem.create({
                 data: {
                     walletId: new_wallet.id,
+                    clientId: typeof client_id == 'string' ? client_id : null,
                     inscription_cost: cost.inscriptionCost,
                     fee_sats: cost.feeSats,
                     total_sat: cost.total,
-                    state: InscriptionQueueItemState.PENDING_PAYMENT,
+                    state,
                     file_path: filePath,
                     mime_type: file.mimetype,
                     file_name: fileName,
@@ -93,6 +107,7 @@ export class InscriptionController extends Controller {
             })
 
             return {
+                id: queueItem.id,
                 depositAddress: receiveAddress.address,
                 total: cost.total,
                 expiresIn
@@ -105,8 +120,10 @@ export class InscriptionController extends Controller {
 
     @Post("/status")
     public async getInscriptionStatus(
+        @Request() req: ExpressRequest,
         @Query() depositAddress: string
     ): Promise<any> {
+        console.log("POST /status", req.headers["x-real-ip"], new Date())
         const inscriptionQueueItem = await this.prismaClient.wallet
             .findFirst({
                 select: {
@@ -115,7 +132,9 @@ export class InscriptionController extends Controller {
                             state: true,
                             updated_at: true,
                             file_name: true,
-                            total_sat: true
+                            total_sat: true,
+                            expires_in: true,
+                            destination_address: true
                         }
                     }
                 },
@@ -125,11 +144,13 @@ export class InscriptionController extends Controller {
             }).then(w => w?.InscriptionQueueItem);
         if (inscriptionQueueItem) {
             return {
+                expiresIn: inscriptionQueueItem.expires_in,
                 state: inscriptionQueueItem.state,
                 last_updated: inscriptionQueueItem.updated_at,
                 deposit_address: depositAddress,
                 file: inscriptionQueueItem.file_name,
-                total_fee: inscriptionQueueItem.total_sat
+                total_fee: inscriptionQueueItem.total_sat,
+                destination_address: inscriptionQueueItem.destination_address
             }
         }
         this.setStatus(404)
@@ -139,8 +160,10 @@ export class InscriptionController extends Controller {
 
     @Get("/file")
     public async getInscriptionFile(
+        @Request() req: ExpressRequest,
         @Query() depositAddress: string
     ): Promise<any> {
+        console.log("GET /file", req.headers["x-real-ip"], new Date())
         const inscriptionQueueItem = await this.prismaClient.wallet
             .findFirst({
                 select: {
@@ -171,22 +194,70 @@ export class InscriptionController extends Controller {
 
     @Post("/estimate")
     public async getEstimate(
+        @Request() req: ExpressRequest,
         @Body() request: {
             bytes_size: number,
-            fee_option: string
+            fee_option?: string
+            fee_option_number?: number
         }
     ) {
+        console.log("POST /estimate", req.headers["x-real-ip"], new Date())
+
         let error_messages = [];
-        if (request.bytes_size > 40000) {
-            error_messages.push(`file size cannot be greater than 40,000 bytes. Actual size ${request.bytes_size}`);
+        if (request.bytes_size > 80000) {
+            error_messages.push(`file size cannot be greater than 80,000 bytes. Actual size ${request.bytes_size}`);
         }
 
         const feeOption = FeeOptions[request.fee_option];
-        if (!feeOption) {
+        if (request.fee_option && !feeOption) {
             error_messages.push('invalid fee option');
         }
         if (error_messages.length === 0)
-            return await estimateCost(request.bytes_size, feeOption).then(eC => eC.total);
+            return await estimateCost(request.bytes_size, { feeOption, fee_option_number: request.fee_option_number }).then(eC => eC.total);
         return error_messages
     }
+
+    @Get("/status/all")
+    public async clientOrdersStatus(
+        @Request() req: ExpressRequest
+    ) {
+        console.log("GET /status/all", req.headers["x-real-ip"], new Date())
+        const client_id = req.headers["x-client-id"];
+        if (!client_id || Array.isArray(client_id)) return [];
+        const queueItems = await this.prismaClient.inscriptionQueueItem.findMany({
+            where: {
+                clientId: client_id as string,
+                OR: [
+                    {
+                        state: {
+                            notIn: [InscriptionQueueItemState.PENDING_PAYMENT, InscriptionQueueItemState.TEST_PAYMENT]
+                        }
+                    }, {
+                        expires_in: {
+                            gt: new Date()
+                        },
+                    }
+                ]
+            },
+            orderBy: {
+                updated_at: "desc"
+            },
+            include: {
+                wallet: true
+            }
+        })
+        return queueItems.map(q => {
+            return {
+                expiresIn: q.expires_in,
+                state: q.state,
+                last_updated: q.updated_at,
+                deposit_address: q.wallet.receiving_address,
+                file: q.file_name,
+                total_fee: q.total_sat,
+                destination_address: q.destination_address
+            }
+        });
+    }
+
+
 }

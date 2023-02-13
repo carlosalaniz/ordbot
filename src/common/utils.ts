@@ -4,38 +4,42 @@ import config from "../config";
 import { exec } from 'child_process'
 import { randomUUID } from 'crypto';
 import { promisify } from 'util'
+import logger from "./logger";
 const execPromise = promisify(exec);
 
 export const sleep = async (ms: number) =>
     await new Promise((resolve) => setInterval(() => resolve(1), ms))
 
 
-export async function estimateCost(sizeBytes, fee_option: FeeOptions) {
+export async function estimateCost(sizeBytes, opts: { feeOption?: FeeOptions, fee_option_number?: number }) {
     const { bitcoin: { fees } } = mempoolJS({
         hostname: 'mempool.space'
     });
 
     const feesRecommended = await fees.getFeesRecommended();
     let fee: number;
-    switch (fee_option) {
-        case FeeOptions.ECONOMY:
-            fee = feesRecommended["economyFee"] || feesRecommended.minimumFee
-            break;
-        case FeeOptions.FASTEST:
-            fee = feesRecommended.fastestFee
-            break;
-        case FeeOptions.HALF_HOUR:
-            fee = feesRecommended.halfHourFee
-            break;
-        case FeeOptions.HOUR:
-            fee = feesRecommended.hourFee
-            break;
-        case FeeOptions.MINIMUM:
-            fee = feesRecommended.minimumFee
-            break;
-    }
-    const multiplier = Number.parseFloat(config.INSCRIPTION_FEE_MULTIPLIER)
+    if (opts.feeOption)
+        switch (opts.feeOption) {
+            case FeeOptions.ECONOMY:
+                fee = feesRecommended["economyFee"] || feesRecommended.minimumFee
+                break;
+            case FeeOptions.FASTEST:
+                fee = feesRecommended.fastestFee
+                break;
+            case FeeOptions.HALF_HOUR:
+                fee = feesRecommended.halfHourFee
+                break;
+            case FeeOptions.HOUR:
+                fee = feesRecommended.hourFee
+                break;
+            case FeeOptions.MINIMUM:
+                fee = feesRecommended.minimumFee
+                break;
+        }
+    else
+        fee = opts.fee_option_number;
 
+    const multiplier = Number.parseFloat(config.INSCRIPTION_FEE_MULTIPLIER)
     const serviceFee = config.SERVICE_FEE_SATS
     const inscriptionCost = Math.round(((fee * sizeBytes) / 2.8) * multiplier)
     const transferCost = Math.round(1200 * fee)
@@ -82,9 +86,11 @@ export class CommandQueue {
     private async runner() {
         while (true) {
             const queueSize = Object.keys(this.queue).length;
-            console.log(queueSize)
-            if (Object.keys(this.queue).length === 0)
-                await sleep(5000);
+            if (Object.keys(this.queue).length === 0) {
+                await sleep(500);
+                continue;
+            }
+            logger.log("CommandQueue", queueSize)
             const parallelCommands =
                 Object.entries(this.queue).slice(0, this.maxParallelCommands);
 
@@ -99,7 +105,7 @@ export class CommandQueue {
         }
     }
     async execute(command: string): Promise<string> {
-        console.log(command);
+        logger.log(command);
         const id = randomUUID();
         this.queue[id] = deferred<any>(
             async () => {
@@ -107,9 +113,9 @@ export class CommandQueue {
                 return stdout;
             }
         );
-        console.log(`queue size: ${Object.keys(this.queue).length}`)
+        logger.log(`queue size: ${Object.keys(this.queue).length}`)
         const result = await this.queue[id].promise;
-        console.log(result);
+        logger.log(result);
         return result;
     }
 }

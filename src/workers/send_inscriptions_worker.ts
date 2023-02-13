@@ -42,10 +42,13 @@ export class SendInscriptionWorker extends IntervalWorkerAbstract {
         for (const record of recordsToInscribe) {
             try {
                 const ord = new OrdWallet(record.wallet.id)
-                await ord.send(
+                const result = await ord.send(
                     record.destination_address,
                     record.fee_sats
                 )
+
+                // This means that one local wallet hasn't synced fully. Give it some time it will.
+                if (result === -1) continue;
                 await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.SENT)
             } catch (e) {
                 await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.ERROR, e.toString())

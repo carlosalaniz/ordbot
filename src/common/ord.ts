@@ -85,9 +85,13 @@ export class OrdWallet {
 
     async send(destination_wallet: string, fee_rate: number) {
         await OrdWallet.index();
-        
+
         // This should only be one.
         const inscriptions = await this.inscriptions();
+        if (inscriptions.length === 0) {
+            console.log(`ord is out of sync, this happens sometimes, just wait. wallet=${this.walletName}`)
+            return -1
+        };
         if (inscriptions.length > 1) {
             throw `inscription list is greater than one, this is unexpected. ${this.walletName}`
         }
@@ -95,7 +99,7 @@ export class OrdWallet {
         const id = inscription.inscription;
         const command = `ord --wallet ${this.walletName} wallet send --fee-rate ${fee_rate} ${destination_wallet} ${id}`;
         const result = await OrdWallet.queueExecuter.execute(command)
-        console.log(`Sent inscription from ${this.walletName} to ${destination_wallet} with command ${command}, result ${result}`)
+        logger.log(`Sent inscription from ${this.walletName} to ${destination_wallet} with command ${command}, result ${result}`)
     }
 
     //get

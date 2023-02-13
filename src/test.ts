@@ -85,3 +85,36 @@
 // })()
 
 
+import { RPCClient } from "rpc-bitcoin"
+
+const client = new RPCClient({
+    url: 'http://localhost',
+    port: 8332,
+    user: "user",
+    pass: "qhi5h4po",
+    // wallet: 'donpepe/wallet.dat',
+});
+
+(async () => {
+    try {
+
+        const info = await client.getblockchaininfo();
+        console.log(info)
+        // //
+        // const walletFile = "/home/user/.bitcoin/wallets/donpepe";
+        // const minconf = 6;
+        // const include_watchonly = true;
+        // var result = await client.loadwallet({ filename: walletFile });
+        // console.log(result)
+        // result = await client.getbalance({ minconf, include_watchonly }, walletFile);
+        // console.log(result)
+
+        const i = await client
+            .getaddressinfo(
+                { address: "bc1ptgzstfqspehrstaxe86yamyzseu5t0f93c8xm7jl6ur8h38w558qtpy7d4" }
+            )
+        console.log(i)
+    } catch (e) {
+        console.log(e);
+    }
+})()

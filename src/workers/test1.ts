@@ -1,4 +1,5 @@
 import mempoolJS from "@mempool/mempool.js";
+import logger from "../common/logger";
 (async () => {
     const { bitcoin: { addresses } } = mempoolJS({
         hostname: 'mempool.space'
@@ -9,5 +10,5 @@ import mempoolJS from "@mempool/mempool.js";
     });
                     //debits - credits
     const balance = walletCheck.chain_stats.funded_txo_sum - walletCheck.chain_stats.spent_txo_sum
-    console.log(balance);
+    logger.log(balance);
 })()

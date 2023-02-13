@@ -17,8 +17,12 @@ import { RegisterRoutes } from "./routes";
     app.use(["/openapi", "/docs", "/swagger"], swaggerUI.serve, swaggerUI.setup(swaggerJson));
 
     RegisterRoutes(app);
-
     app.listen(port, "0.0.0.0", async () => {
+        console.log("Config:")
+        Object.entries(config).forEach(configEntry => {
+            if(['string', 'number'].includes(typeof configEntry[1]))
+            console.log(configEntry[0], configEntry[1]);
+        })
         console.log(`⚡️[server]: Server is running at http://localhost:${port}/docs/`);
     });
 })()

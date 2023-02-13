@@ -87,7 +87,7 @@ import DepositView from "../components/DepositView.vue";
     </article>
   </dialog>
 
-  <DepositView v-if="mintResult && modal['qr_modal']" :depositAddress="mintResult.depositAddress" :total="mintResult.total" :expiresIn="mintResult.expiresIn" @close="toggleModal('qr_modal')" />
+  <DepositView v-if="mintResult && modal['qr_modal']" :depositAddress="mintResult.depositAddress" :total="mintResult.total" :expiresIn="mintResult.expiresIn" @close="toggleModal('qr_modal');reload()" />
 
   <dialog :open="modal['access_code_wait']">
     <article aria-busy="true">Creando ficha...</article>
@@ -126,6 +126,9 @@ export default defineComponent({
     };
   },
   methods: {
+    reload(){
+      location.reload()
+    },
     toggleModal(modal: string) {
       console.log(modal);
       this.modal[modal] = !this.modal[modal];

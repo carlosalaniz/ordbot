@@ -45,8 +45,8 @@ export class CheckPaymentPendingWorker extends IntervalWorkerAbstract {
             }
         });
         
+        logger.debug(`CheckPaymentConfirmationWorker: ${uuid} JobProcessing ${recordsToCheck.length} inscriptionQueueItems...`)
         for (const record of recordsToCheck) {
-            logger.debug(`CheckPaymentConfirmationWorker: ${uuid} JobProcessing ${recordsToCheck.length} inscriptionQueueItems...`)
             const walletInfo = await this.addressesApi.getAddress({
                 address: record.wallet.receiving_address
             });

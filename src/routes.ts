@@ -11,6 +11,11 @@ const upload = multer();
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "InscriptionQueueItemState": {
+        "dataType": "refAlias",
+        "type": {"dataType":"any","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const validationService = new ValidationService(models);
 
@@ -21,6 +26,31 @@ export function RegisterRoutes(app: Router) {
     //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
+        app.get('/inscriptions/status',
+            ...(fetchMiddlewares<RequestHandler>(InscriptionController)),
+            ...(fetchMiddlewares<RequestHandler>(InscriptionController.prototype.status)),
+
+            function InscriptionController_status(request: any, response: any, next: any) {
+            const args = {
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new InscriptionController();
+
+
+              const promise = controller.status.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/inscriptions/queue',
             upload.single('file'),
             ...(fetchMiddlewares<RequestHandler>(InscriptionController)),
@@ -28,6 +58,7 @@ export function RegisterRoutes(app: Router) {
 
             function InscriptionController_uploadFileInscription(request: any, response: any, next: any) {
             const args = {
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     file: {"in":"formData","name":"file","required":true,"dataType":"file"},
                     fee_option: {"in":"formData","name":"fee_option","required":true,"dataType":"string"},
                     destination_address: {"in":"formData","name":"destination_address","required":true,"dataType":"string"},
@@ -55,6 +86,7 @@ export function RegisterRoutes(app: Router) {
 
             function InscriptionController_getInscriptionStatus(request: any, response: any, next: any) {
             const args = {
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     depositAddress: {"in":"query","name":"depositAddress","required":true,"dataType":"string"},
             };
 
@@ -80,6 +112,7 @@ export function RegisterRoutes(app: Router) {
 
             function InscriptionController_getInscriptionFile(request: any, response: any, next: any) {
             const args = {
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     depositAddress: {"in":"query","name":"depositAddress","required":true,"dataType":"string"},
             };
 
@@ -105,7 +138,8 @@ export function RegisterRoutes(app: Router) {
 
             function InscriptionController_getEstimate(request: any, response: any, next: any) {
             const args = {
-                    request: {"in":"body","name":"request","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"fee_option":{"dataType":"string","required":true},"bytes_size":{"dataType":"double","required":true}}},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
+                    request: {"in":"body","name":"request","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"fee_option_number":{"dataType":"double"},"fee_option":{"dataType":"string"},"bytes_size":{"dataType":"double","required":true}}},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -118,6 +152,31 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.getEstimate.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/inscriptions/status/all',
+            ...(fetchMiddlewares<RequestHandler>(InscriptionController)),
+            ...(fetchMiddlewares<RequestHandler>(InscriptionController.prototype.clientOrdersStatus)),
+
+            function InscriptionController_clientOrdersStatus(request: any, response: any, next: any) {
+            const args = {
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new InscriptionController();
+
+
+              const promise = controller.clientOrdersStatus.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

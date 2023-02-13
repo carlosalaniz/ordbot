@@ -32,6 +32,7 @@ export default {
     // cost variables
     INSCRIPTION_FEE_MULTIPLIER: process.env.INSCRIPTION_FEE_MULTIPLIER,
     SERVICE_FEE_SATS: +process.env.SERVICE_FEE_SATS,
+    
     prismaClient: new PrismaClient()
 }
 

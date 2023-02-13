@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
-import IconLogout from "./components/icons/IconLogout.vue";
+import OrderPreview from "./components/OrderPreview.vue";
 </script>
 
 <template>
-  <dialog open>
+  <dialog :open="!service_ok">
     <article>
-     We are fixing bugs! Come back later!
+      Something went wrong on our side. It's ok will fix it soon!
     </article>
   </dialog>
+
   <main class="container">
     <nav>
       <ul>
@@ -20,7 +21,10 @@ import IconLogout from "./components/icons/IconLogout.vue";
           <RouterLink to="/">Create</RouterLink>
         </li>
         <li>
-          <RouterLink to="/status">Check Status</RouterLink>
+          <RouterLink to="/status">Status</RouterLink>
+        </li>
+        <li>
+          <RouterLink to="/bulk">🆕Bulk orders</RouterLink>
         </li>
       </ul>
 
@@ -32,11 +36,10 @@ import IconLogout from "./components/icons/IconLogout.vue";
         </li>
       </ul>
     </nav>
-    <hr />
 
     <RouterView />
+    <OrderPreview />
     <footer dir="rtl">
-      <hr>
       <p><small>
           🐸<span class="secondary">Version 0.1</span>🐸</small> |
         <small>Only fans: <a href="https://twitter.com/extra_ordinal">@extra_ordinal</a></small>
@@ -49,9 +52,11 @@ import IconLogout from "./components/icons/IconLogout.vue";
 <script lang="ts">
 import { defineComponent } from "vue";
 import { config } from "./config";
+import client from "./client";
 export default defineComponent({
   data() {
     return {
+      service_ok: true,
       scheme: "",
       theme_icon: {
         dark: "☀️",
@@ -87,7 +92,13 @@ export default defineComponent({
       this.schemeToLocalStorage();
     },
   },
-  beforeMount() {
+  async beforeMount() {
+    const userId = localStorage.getItem("identity");
+    try {
+      this.service_ok = await client.service_status().then(s => s === 'OK');
+    } catch (e) {
+      this.service_ok = false;
+    }
     this.scheme = this.schemeFromLocalStorage() || this.preferredColorScheme();
     this.applyScheme(this.scheme);
   },

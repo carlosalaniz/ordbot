@@ -5,7 +5,9 @@
 		"parameters": {},
 		"requestBodies": {},
 		"responses": {},
-		"schemas": {},
+		"schemas": {
+			"InscriptionQueueItemState": {}
+		},
 		"securitySchemes": {
 			"jwt": {
 				"type": "apiKey",
@@ -24,6 +26,55 @@
 	},
 	"openapi": "3.0.0",
 	"paths": {
+		"/inscriptions/status": {
+			"get": {
+				"operationId": "Status",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Inscriptions"
+				],
+				"security": [],
+				"parameters": []
+			},
+			"post": {
+				"operationId": "GetInscriptionStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Inscriptions"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "depositAddress",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/inscriptions/queue": {
 			"post": {
 				"operationId": "UploadFileInscription",
@@ -79,35 +130,6 @@
 						}
 					}
 				}
-			}
-		},
-		"/inscriptions/status": {
-			"post": {
-				"operationId": "GetInscriptionStatus",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {}
-							}
-						}
-					}
-				},
-				"tags": [
-					"Inscriptions"
-				],
-				"security": [],
-				"parameters": [
-					{
-						"in": "query",
-						"name": "depositAddress",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				]
 			}
 		},
 		"/inscriptions/file": {
@@ -174,6 +196,10 @@
 						"application/json": {
 							"schema": {
 								"properties": {
+									"fee_option_number": {
+										"type": "number",
+										"format": "double"
+									},
 									"fee_option": {
 										"type": "string"
 									},
@@ -183,7 +209,6 @@
 									}
 								},
 								"required": [
-									"fee_option",
 									"bytes_size"
 								],
 								"type": "object"
@@ -191,6 +216,66 @@
 						}
 					}
 				}
+			}
+		},
+		"/inscriptions/status/all": {
+			"get": {
+				"operationId": "ClientOrdersStatus",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"properties": {
+											"destination_address": {
+												"type": "string"
+											},
+											"total_fee": {
+												"type": "number",
+												"format": "double"
+											},
+											"file": {
+												"type": "string"
+											},
+											"deposit_address": {
+												"type": "string"
+											},
+											"last_updated": {
+												"type": "string",
+												"format": "date-time"
+											},
+											"state": {
+												"$ref": "#/components/schemas/InscriptionQueueItemState"
+											},
+											"expiresIn": {
+												"type": "string",
+												"format": "date-time"
+											}
+										},
+										"required": [
+											"destination_address",
+											"total_fee",
+											"file",
+											"deposit_address",
+											"last_updated",
+											"state",
+											"expiresIn"
+										],
+										"type": "object"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Inscriptions"
+				],
+				"security": [],
+				"parameters": []
 			}
 		}
 	},

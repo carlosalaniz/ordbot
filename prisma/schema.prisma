@@ -12,6 +12,7 @@ datasource db {
 
 enum InscriptionQueueItemState {
   PENDING_PAYMENT
+  TEST_PAYMENT
   WAITING_INSCRIBED_CONFIRMATION
   WAITING_PAYMENT_CONFIRMATION
   PAYMENT_CONFIRMED
@@ -37,6 +38,7 @@ model Wallet {
 
 model InscriptionQueueItem {
   id                  String                    @id @default(uuid())
+  clientId            String?
   wallet              Wallet                    @relation(fields: [walletId], references: [id])
   inscription_cost    Int
   fee_sats            Int

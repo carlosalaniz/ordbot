@@ -99,7 +99,7 @@ export default defineComponent({
       <div>
         Instructions:
         <ol>
-          <li>In a <mark>single transaction</mark> , send <mark :data-tooltip="`${(total! * 0.00000001).toFixed(8)} BTC`" data-placement="top">exactly {{ total }} SATS</mark> to the address below; use this address to check the status of the order.</li>
+          <li>In a <mark>single transaction</mark> , send <mark :data-tooltip="`${(total! * 0.00000001).toFixed(8)} BTC`" data-placement="bottom">exactly {{ total }} SATS</mark> to the address below; use this address to check the status of the order.</li>
           <li>The system will pick up the order and mint your file.</li>
         </ol>
         <div class="grid">
@@ -112,7 +112,7 @@ export default defineComponent({
             <div contentEditable id="address" class="contrast outline">{{ depositAddress }}</div>
             <ins v-if="addressCopied">Copied!</ins>
             <br />
-            <p :data-tooltip="`${(total! * 0.00000001).toFixed(8)} BTC`" data-placement="top">
+            <p :data-tooltip="`${(total! * 0.00000001).toFixed(8)} BTC`" data-placement="bottom">
               Amount to deposit in SATS: <input readonly :value="total">
               <ins v-if="addressCopied">Copied!</ins>
             </p>
