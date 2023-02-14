@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
 import OrderPreview from "./components/OrderPreview.vue";
+import ServerMessage from "./components/ServerMessageDialog.vue";
+import ServerMessageDialogDivArray from "./components/ServerMessageDialogDivArray.vue";
 </script>
 
 <template>
+  <!-- <ServerMessage  /> -->
   <dialog :open="!service_ok">
     <article>
       Something went wrong on our side. It's ok will fix it soon!
     </article>
   </dialog>
-
+  
   <main class="container">
     <nav>
       <ul>
@@ -36,6 +39,7 @@ import OrderPreview from "./components/OrderPreview.vue";
         </li>
       </ul>
     </nav>
+    <ServerMessageDialogDivArray />
 
     <RouterView />
     <OrderPreview />

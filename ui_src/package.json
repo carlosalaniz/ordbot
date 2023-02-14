@@ -11,7 +11,11 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@types/md5": "^2.3.2",
+    "js-md5": "^0.7.3",
     "jwt-decode": "^3.1.2",
+    "md5": "^2.3.0",
+    "nstall": "^0.2.0",
     "qrcode.vue": "^3.3.3",
     "uuid": "^9.0.0",
     "vue": "^3.2.45",
@@ -19,6 +23,7 @@
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.4",
+    "@types/js-md5": "^0.7.0",
     "@types/node": "^18.11.12",
     "@types/uuid": "^9.0.0",
     "@vitejs/plugin-vue": "^4.0.0",

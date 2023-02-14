@@ -15,9 +15,9 @@ export class WorkerBroker {
     async start() {
         const workers = [
             this.checkPaymentConfirmationWorker.start(),
-            this.inscribeWorker.start(),
-            this.inscribeStateConfirmationWorker.start(),
-            this.sendInscriptionWorker.start(),
+            // this.inscribeWorker.start(),
+            // this.inscribeStateConfirmationWorker.start(),
+            // this.sendInscriptionWorker.start(),
             this.checkPaymentPendingWorker.start()
         ]
         try {

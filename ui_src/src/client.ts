@@ -73,5 +73,8 @@ class WebClient {
   async service_status() {
     return await fetch(resolveURL(`inscriptions/status`)).then(r => r.json());
   }
+  async getServerMessages(){
+    return await fetch(resolveURL(`server/messages`)).then(r => r.json());
+  }
 }
 export default new WebClient();

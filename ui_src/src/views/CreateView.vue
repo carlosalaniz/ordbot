@@ -12,6 +12,10 @@ import DepositView from "../components/DepositView.vue";
 .error {
   color: var(--del-color)
 }
+
+.status-title {
+  color: var(--primary)
+}
 </style>
 <template>
   <!-- <dialog :open="plans.length === 0">
@@ -30,7 +34,44 @@ import DepositView from "../components/DepositView.vue";
         <li>Press Mint and wait for the payment instructions screen to pop up.</li>
         <li>Follow payment instructions.</li>
       </ol>
+
     </div>
+
+<details>
+  <summary>Additional Information:</summary>
+  <ul>
+    If you exit the payment screen without sending payment, your order will be saved
+      and viewable at the bottom of the screen titled 'PENDING_PAYMENT'. You will have 
+      90 minutes to pay before the order will be cancelled; your timeout countdown 
+      will be viewable with the order.
+      <br>
+      <br>
+      If you have questions or need assistance to send payment, please contact us via 
+      <a href="https://discord.gg/sAWEj2uZ">Discord</a> or Twitter
+    <a href="https://twitter.com/extra_ordinal">@extra_ordinal</a>.
+  </ul>
+</details>
+  <details>
+    <summary>Order Status Meanings:</summary>
+    <ol>
+          <li><span class="status-title">PENDING_PAYMENT:</span> Payment has not yet been received.</li>
+          <li><span class="status-title">WAITING_PAYMENT_CONFIRMATION:</span> Your payment has been seen in MEMPOOL, but
+            is not yet confirmed. </li>
+          <li><span class="status-title">PAYMENT_CONFIRMED:</span> Your payment has been confirmed on the blockchain. </li>
+          <li><span class="status-title">WAITING_INSCRIBED_CONFIRMATION:</span> Your NFT has been inscribed, but not yet confirmed.
+            You can check the status of this on any blockchain explorer by checking the deposit
+            address.
+          </li>
+          <li><span class="status-title">INSCRIBED:</span> Your NFT has been inscribed and confirmed and will be sent to your
+            destination wallet within 5 minutes.
+          </li>
+          <li><span class="status-title">🎉SENT:</span> Your NFT has been sent to your wallet. We use the same fee for this transaction
+            as the one that you selected in the first step. The confirmation time will vary depending
+            on your original selection.
+          </li>
+          <li><span class="status-title">ERROR:</span> Something went wrong. Please reach out to us via Discord or Twitter.</li>
+        </ol>
+</details>
     <br />
     <div class="grid">
       <div>
@@ -73,25 +114,9 @@ import DepositView from "../components/DepositView.vue";
         </p>
       <!-- </blockquote> -->
   </article>
-  <dialog :open="modal['create-code-confirmation']">
-    <article>
-      <header>
-        <a @click="toggleModal('create-code-confirmation')" aria-label="Close" class="close"></a>
-        Estas a punto de crear una ficha.
-      </header>
-      <p>Estas seguro que deseas crear la ficha?</p>
-      <footer>
-        <a href="#" @click="toggleModal('create-code-confirmation')" role="button" class="secondary">Cancelar</a>
-        <!-- <a @click="createAccessCode(planid)" href="#" role="button">Confirmar</a> -->
-      </footer>
-    </article>
-  </dialog>
 
   <DepositView v-if="mintResult && modal['qr_modal']" :depositAddress="mintResult.depositAddress" :total="mintResult.total" :expiresIn="mintResult.expiresIn" @close="toggleModal('qr_modal');reload()" />
 
-  <dialog :open="modal['access_code_wait']">
-    <article aria-busy="true">Creando ficha...</article>
-  </dialog>
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
