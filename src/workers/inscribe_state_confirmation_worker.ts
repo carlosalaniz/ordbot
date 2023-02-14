@@ -4,6 +4,7 @@ import { InscriptionQueueItemState, PrismaClient } from '@prisma/client'
 import mempoolJS from "@mempool/mempool.js";
 import { AddressInstance } from "@mempool/mempool.js/lib/interfaces/bitcoin/addresses";
 import logger from "../common/logger";
+import { OrdWallet } from "../common/ord";
 
 export class InscribeStateConfirmationWorker extends IntervalWorkerAbstract {
     private addressesApi: AddressInstance;
@@ -44,15 +45,17 @@ export class InscribeStateConfirmationWorker extends IntervalWorkerAbstract {
         });
         logger.debug(`InscribeStateConfirmationWorker: ${uuid} JobProcessing ${recordsToCheck.length} inscriptionQueueItems...`)
         for (const record of recordsToCheck) {
-            const walletTXNs = await this.addressesApi.getAddressTxs({
-                address: record.wallet.receiving_address
-            });
-
             // we assume a newly created wallet.
             // thus this wallet should only have 2 txns one funding transactions and one inscribing txn
-            const confirmed = walletTXNs.every(txn => txn.status.confirmed);
-            if (confirmed) {
-                await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.INSCRIBED);
+            const ord = new OrdWallet(record.wallet.id)
+            const transactions = await ord.transactions();
+            if (typeof transactions === "string") {
+                await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.ERROR, transactions)
+            } else {
+                const confirmed = transactions.every(t => t.confirmations > 0)
+                if (confirmed) {
+                    await this.updateQueueItemStatus(record.id, InscriptionQueueItemState.INSCRIBED);
+                }
             }
         }
     }

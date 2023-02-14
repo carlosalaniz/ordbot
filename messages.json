@@ -1,7 +1,3 @@
 [
-    {
-        "message": "We are re-indexing our database. We can't mint any NFT until this is complete. You can still place orders and we will process them in payment order.",
-        "on": "every",
-        "every": 5000
-    }
+
 ]

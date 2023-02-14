@@ -30,13 +30,13 @@ type receive =
     }
 
 const walletStorage = config.ORD_TOOLS_WALLET_STORAGE_FULLPATH;
-const regexVerify = new RegExp(config.ORD_WALLET_NAME_REGEX_VERIFY)
+const regexVerify = new RegExp(config.ORD_WALLET_NAME_REGEX_VERIFY!)
 
 function verifyWalletName(walletName: string, exists: boolean) {
     if (!regexVerify.test(walletName)) {
         throw `Wrong wallet name=${walletName} regex=${regexVerify}`
     }
-    const walletFolderPath = resolve(walletStorage, walletName);
+    const walletFolderPath = resolve(walletStorage!, walletName);
     if (existsSync(walletFolderPath) !== exists) {
         throw `Wrong wallet path=${walletFolderPath} wallet name=${walletName} `
     }
@@ -47,7 +47,7 @@ export class OrdWallet {
     static indexBlock = false;
     static async createWallet(walletName): Promise<mnemonic> {
         verifyWalletName(walletName, false)
-        const walletFolderPath = resolve(walletStorage, walletName);
+        const walletFolderPath = resolve(walletStorage!, walletName);
         if (existsSync(walletFolderPath)) {
             throw `createWallet: Wrong wallet path=${walletFolderPath} wallet name=${walletName} exists `
         }
@@ -70,7 +70,7 @@ export class OrdWallet {
 
     constructor(private walletName: string) {
         verifyWalletName(this.walletName, true)
-        const walletFolderPath = resolve(walletStorage, this.walletName);
+        const walletFolderPath = resolve(walletStorage!, this.walletName);
         if (!existsSync(walletFolderPath)) {
             throw `Wrong wallet path=${walletFolderPath} wallet name=${this.walletName} `
         }

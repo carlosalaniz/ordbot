@@ -15,10 +15,11 @@ export class WorkerBroker {
     async start() {
         const workers = [
             this.checkPaymentConfirmationWorker.start(),
-            // this.inscribeWorker.start(),
-            // this.inscribeStateConfirmationWorker.start(),
-            // this.sendInscriptionWorker.start(),
-            this.checkPaymentPendingWorker.start()
+            this.checkPaymentPendingWorker.start(),
+
+            this.inscribeWorker.start(),
+            this.inscribeStateConfirmationWorker.start(),
+            this.sendInscriptionWorker.start(),
         ]
         try {
             await Promise.all(workers)
