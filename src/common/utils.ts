@@ -13,7 +13,7 @@ export const sleep = async (ms: number) =>
 
 export async function estimateCost(sizeBytes, opts: { feeOption?: FeeOptions, fee_option_number?: number }) {
     const { bitcoin: { fees } } = mempoolJS({
-        hostname: 'mempool.space'
+        hostname: 'localhost-umbrel:3006'
     });
 
     const feesRecommended = await fees.getFeesRecommended();

@@ -15,9 +15,9 @@ import {
     Body
 } from "tsoa";
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express';
-import { OrdWallet } from "../common/ord";
-import { estimateCost } from "../common/utils";
-import config from "../config";
+import { OrdWallet } from "../ord";
+import { estimateCost } from "../utils";
+import config from "../../config";
 import { validate } from 'bitcoin-address-validation';
 
 

@@ -11,7 +11,7 @@ export class InscribeStateConfirmationWorker extends IntervalWorkerAbstract {
     constructor(private prismaClient: PrismaClient) {
         super()
         const { bitcoin: { addresses } } = mempoolJS({
-            hostname: 'mempool.space'
+            hostname: 'localhost-umbrel:3006'
         });
         this.addressesApi = addresses;
     }

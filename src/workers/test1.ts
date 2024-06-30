@@ -2,7 +2,7 @@ import mempoolJS from "@mempool/mempool.js";
 import logger from "../common/logger";
 (async () => {
     const { bitcoin: { addresses } } = mempoolJS({
-        hostname: 'mempool.space'
+        hostname: 'localhost-umbrel:3006'
     });
     const addressesApi = addresses;
     const walletCheck = await addressesApi.getAddress({
